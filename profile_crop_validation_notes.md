@@ -1,0 +1,3 @@
+- The development server restarted successfully after adding the crop dependency. The attempted `/job-seeker/profile` URL returns the application 404 page, so the correct existing route must be obtained from the router before visual crop verification.
+- The registered `/profile` page loads correctly but requires an authenticated job-seeker session. Anonymous navigation exposes only job browsing and employer login, so visual crop interaction cannot be exercised without a test job-seeker browser session.
+- The sign-in modal contains a job-seeker sign-up form, but no account was created because the crop feature is already covered by focused validation and a browser-only test account would create persistent application data unnecessarily.

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ProfilePhotoCropDialog from "@/components/ProfilePhotoCropDialog";
+import { getProfilePhotoValidationError } from "@/lib/profilePhotoCrop";
 import {
   Select,
   SelectContent,
@@ -44,47 +46,6 @@ const DESIRED_CATEGORIES = [
   "Customer Support",
 ];
 
-/**
- * Resize + compress an image before uploading it to managed file storage.
- * The database keeps only the returned storage URL, not the image bytes.
- */
-function readAndCompressImage(
-  file: File,
-  maxSize = 400,
-  quality = 0.8
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Could not read the image file."));
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = () => reject(new Error("The selected file is not a valid image."));
-      img.onload = () => {
-        let { width, height } = img;
-        // Downscale so the longest side is at most `maxSize`.
-        if (width > maxSize || height > maxSize) {
-          const scale = maxSize / Math.max(width, height);
-          width = Math.round(width * scale);
-          height = Math.round(height * scale);
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          reject(new Error("Could not process the image."));
-          return;
-        }
-        ctx.drawImage(img, 0, 0, width, height);
-        // Export as JPEG so the data URL stays compact and compatible.
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      };
-      img.src = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 export default function JobSeekerProfile() {
 const { jobSeeker, loading, refresh } = useJobSeekerAuth();
   const [, setLocation] = useLocation();
@@ -98,6 +59,8 @@ const { jobSeeker, loading, refresh } = useJobSeekerAuth();
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
   const [resumeUrl, setResumeUrl] = useState("");
   const [resumeName, setResumeName] = useState("");
   const [desiredCategory, setDesiredCategory] = useState("");
@@ -151,22 +114,48 @@ const { jobSeeker, loading, refresh } = useJobSeekerAuth();
     setSkills(prev => prev.filter(s => s !== skill));
   };
 
-const [photoError, setPhotoError] = useState("");
-
-const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+	const [photoError, setPhotoError] = useState("");
+	
+	const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoError("");
-	try {
-	  const compressed = await readAndCompressImage(file);
-	  const uploaded = await photoUploadMutation.mutateAsync({ dataUrl: compressed });
-	  setPhotoUrl(uploaded.url);
-	} catch (err) {
-	  setPhotoError(err instanceof Error ? err.message : "Failed to upload image.");
+    const validationError = getProfilePhotoValidationError(file);
+		if (validationError) {
+      setPhotoError(validationError);
+      e.target.value = "";
+      return;
     }
-    // Reset the input value so selecting the same file again still triggers
-    // the change event (allowing re-upload of the same image).
+    setCropSource(current => {
+      if (current) URL.revokeObjectURL(current);
+      return URL.createObjectURL(file);
+    });
+    setCropOpen(true);
     e.target.value = "";
+  };
+
+  const handleCropOpenChange = (open: boolean) => {
+    setCropOpen(open);
+    if (!open) {
+      setCropSource(current => {
+        if (current) URL.revokeObjectURL(current);
+        return null;
+      });
+    }
+  };
+
+  const handleCroppedPhoto = async (dataUrl: string) => {
+    try {
+      const uploaded = await photoUploadMutation.mutateAsync({ dataUrl });
+      setPhotoUrl(uploaded.url);
+      setCropSource(current => {
+        if (current) URL.revokeObjectURL(current);
+        return null;
+      });
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Failed to upload image.");
+      throw err;
+    }
   };
 
   const [resumeError, setResumeError] = useState("");
@@ -304,16 +293,16 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                       <Camera className="w-4 h-4" />
                     </button>
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-	                    accept="image/png,image/jpeg,image/webp"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-<p className="text-xs text-muted-foreground">
-	                    Upload a profile photo (PNG, JPG, or WebP) — uploaded securely to your profile.
-                  </p>
+	                  <input
+	                    ref={fileInputRef}
+	                    type="file"
+		                    accept="image/png,image/jpeg,image/webp"
+	                    onChange={handlePhotoSelect}
+	                    className="hidden"
+	                  />
+	<p className="text-xs text-muted-foreground">
+		                    Select a photo, crop it to fit your profile, then upload it securely.
+	                  </p>
                   {photoError && (
                     <p className="text-xs text-destructive">{photoError}</p>
                   )}
@@ -542,8 +531,9 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </form>
             </Card>
           </div>
-        </Container>
-      </section>
-    </PageLayout>
+	        </Container>
+	      </section>
+	      <ProfilePhotoCropDialog imageSource={cropSource} open={cropOpen} onOpenChange={handleCropOpenChange} onConfirm={handleCroppedPhoto} />
+	    </PageLayout>
   );
 }
