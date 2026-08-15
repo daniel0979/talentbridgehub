@@ -33,6 +33,11 @@ import {
   storeResume,
   UploadValidationError,
 } from "./jobSeekerUploads";
+import {
+  isLegacyDataUri,
+  LegacyProfileMediaError,
+  prepareProfileMediaUpdate,
+} from "./profileMediaCompatibility";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required.").max(255),
@@ -50,6 +55,15 @@ const managedStorageUrlSchema = z
   .max(512)
   .refine(value => value.startsWith("/manus-storage/"), "Uploaded files must be stored through the platform.");
 
+const legacyCompatibleMediaSchema = (maximumLength: number) =>
+  z
+    .string()
+    .max(maximumLength)
+    .refine(
+      value => value.startsWith("/manus-storage/") || isLegacyDataUri(value),
+      "Uploaded files must be stored through the platform.",
+    );
+
 const profileUpdateSchema = z
   .object({
     name: z.string().min(1).max(255).optional(),
@@ -58,8 +72,8 @@ const profileUpdateSchema = z
     headline: z.string().max(255).nullable().optional(),
     bio: z.string().nullable().optional(),
     skills: z.array(z.string().max(64)).max(30).nullable().optional(),
-    photoUrl: managedStorageUrlSchema.nullable().optional(),
-    resumeUrl: managedStorageUrlSchema.nullable().optional(),
+    photoUrl: legacyCompatibleMediaSchema(MAX_PROFILE_PHOTO_DATA_URL_LENGTH).nullable().optional(),
+    resumeUrl: legacyCompatibleMediaSchema(MAX_RESUME_DATA_URL_LENGTH).nullable().optional(),
     desiredCategory: z.string().max(255).nullable().optional(),
   })
   .optional();
@@ -277,7 +291,19 @@ export const jobSeekerRouter = router({
         if (!input) {
           return { jobSeeker: publicProfile(ctx.jobSeeker) } as const;
         }
-        const updated = await updateJobSeekerProfile(ctx.jobSeeker.id, input);
+        let safeInput;
+        try {
+          safeInput = prepareProfileMediaUpdate(input, {
+            photoUrl: ctx.jobSeeker.photoUrl,
+            resumeUrl: ctx.jobSeeker.resumeUrl,
+          });
+        } catch (error) {
+          if (error instanceof LegacyProfileMediaError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+          }
+          throw error;
+        }
+        const updated = await updateJobSeekerProfile(ctx.jobSeeker.id, safeInput);
         return { jobSeeker: publicProfile(updated) } as const;
       }),
   }),
