@@ -26,6 +26,13 @@ import {
   markAllNotificationsRead,
 } from "./db";
 import { notifyOwner } from "./_core/notification";
+import {
+  MAX_PROFILE_PHOTO_DATA_URL_LENGTH,
+  MAX_RESUME_DATA_URL_LENGTH,
+  storeProfilePhoto,
+  storeResume,
+  UploadValidationError,
+} from "./jobSeekerUploads";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required.").max(255),
@@ -38,6 +45,11 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required."),
 });
 
+const managedStorageUrlSchema = z
+  .string()
+  .max(512)
+  .refine(value => value.startsWith("/manus-storage/"), "Uploaded files must be stored through the platform.");
+
 const profileUpdateSchema = z
   .object({
     name: z.string().min(1).max(255).optional(),
@@ -46,8 +58,8 @@ const profileUpdateSchema = z
     headline: z.string().max(255).nullable().optional(),
     bio: z.string().nullable().optional(),
     skills: z.array(z.string().max(64)).max(30).nullable().optional(),
-    photoUrl: z.string().nullable().optional(),
-    resumeUrl: z.string().nullable().optional(),
+    photoUrl: managedStorageUrlSchema.nullable().optional(),
+    resumeUrl: managedStorageUrlSchema.nullable().optional(),
     desiredCategory: z.string().max(255).nullable().optional(),
   })
   .optional();
@@ -227,7 +239,38 @@ export const jobSeekerRouter = router({
     }),
   }),
 
-profile: router({
+  uploads: router({
+    profilePhoto: jobSeekerProcedure
+      .input(z.object({ dataUrl: z.string().min(1).max(MAX_PROFILE_PHOTO_DATA_URL_LENGTH) }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const uploaded = await storeProfilePhoto(ctx.jobSeeker.id, input.dataUrl);
+          return { url: uploaded.url } as const;
+        } catch (error) {
+          if (error instanceof UploadValidationError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+          }
+          console.error("[Job Seeker] Profile-photo upload failed:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not upload the profile photo. Please try again." });
+        }
+      }),
+    resume: jobSeekerProcedure
+      .input(z.object({ dataUrl: z.string().min(1).max(MAX_RESUME_DATA_URL_LENGTH) }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const uploaded = await storeResume(ctx.jobSeeker.id, input.dataUrl);
+          return { url: uploaded.url } as const;
+        } catch (error) {
+          if (error instanceof UploadValidationError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+          }
+          console.error("[Job Seeker] Resume upload failed:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not upload the resume. Please try again." });
+        }
+      }),
+  }),
+
+  profile: router({
     update: jobSeekerProcedure
       .input(profileUpdateSchema)
       .mutation(async ({ ctx, input }) => {

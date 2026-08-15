@@ -35,3 +35,9 @@
 - [x] Run and record a non-destructive database-write smoke test against the managed database before release.
 - [x] Verify the seeded super-admin password rotation with a safe authentication or password-hash check.
 - [x] Save a release checkpoint and provide the user with the managed hosting publication steps and final URL.
+- [ ] Diagnose and repair original company-logo display while preserving source assets and all non-logo imported company data.
+- [x] Extract the original company logo payloads from the SQL dump, upload them to managed storage, restore matching logo URLs, and verify the development directory.
+- [x] Fix the job-seeker profile update failure when a photo is submitted as a large base64 data URI by storing profile images through managed file storage instead of writing image bytes to the database.
+- [x] Move job-seeker resume uploads from base64 database values to managed file storage so valid PDF and DOCX documents remain usable within column limits.
+- [ ] Deploy the latest logo-recovery changes, then verify the published company directory loads without a server error and renders all five restored logos.
+- [ ] Investigate and resolve the live `/companies` server error if it persists after the updated release, then re-run the published-site smoke test.

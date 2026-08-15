@@ -45,10 +45,8 @@ const DESIRED_CATEGORIES = [
 ];
 
 /**
- * Resize + compress an image down to a small base64 data URL before storing.
- * Full-size photos (especially PNGs) exceed the DB column limit and cause
- * "Data too long for column" errors on save. Downscaling to a small square
- * avatar (max 400px, JPEG) keeps the data URL well under the limit.
+ * Resize + compress an image before uploading it to managed file storage.
+ * The database keeps only the returned storage URL, not the image bytes.
  */
 function readAndCompressImage(
   file: File,
@@ -135,6 +133,9 @@ const { jobSeeker, loading, refresh } = useJobSeekerAuth();
     },
   });
 
+  const photoUploadMutation = trpc.jobSeeker.uploads.profilePhoto.useMutation();
+  const resumeUploadMutation = trpc.jobSeeker.uploads.resume.useMutation();
+
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (!trimmed) return;
@@ -156,11 +157,12 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoError("");
-    try {
-      const compressed = await readAndCompressImage(file);
-      setPhotoUrl(compressed);
-    } catch (err) {
-      setPhotoError(err instanceof Error ? err.message : "Failed to process image.");
+	try {
+	  const compressed = await readAndCompressImage(file);
+	  const uploaded = await photoUploadMutation.mutateAsync({ dataUrl: compressed });
+	  setPhotoUrl(uploaded.url);
+	} catch (err) {
+	  setPhotoError(err instanceof Error ? err.message : "Failed to upload image.");
     }
     // Reset the input value so selecting the same file again still triggers
     // the change event (allowing re-upload of the same image).
@@ -184,7 +186,8 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(file);
       });
-      setResumeUrl(dataUrl);
+	  const uploaded = await resumeUploadMutation.mutateAsync({ dataUrl });
+	  setResumeUrl(uploaded.url);
       setResumeName(file.name);
     } catch (err) {
       setResumeError(err instanceof Error ? err.message : "Failed to read file.");
@@ -201,16 +204,26 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setError("Your name is required.");
       return;
     }
-    updateMutation.mutate({
-      name,
-      headline: headline || null,
-      location: location || null,
-      bio: bio || null,
-      skills,
-      photoUrl: photoUrl || null,
-      resumeUrl: resumeUrl || null,
-      desiredCategory: desiredCategory || null,
-    });
+	const updateInput: {
+	  name: string;
+	  headline: string | null;
+	  location: string | null;
+	  bio: string | null;
+	  skills: string[];
+	  desiredCategory: string | null;
+	  photoUrl?: string | null;
+	  resumeUrl?: string | null;
+	} = {
+	  name,
+	  headline: headline || null,
+	  location: location || null,
+	  bio: bio || null,
+	  skills,
+	  desiredCategory: desiredCategory || null,
+	};
+	if (photoUrl !== (jobSeeker?.photoUrl || "")) updateInput.photoUrl = photoUrl || null;
+	if (resumeUrl !== (jobSeeker?.resumeUrl || "")) updateInput.resumeUrl = resumeUrl || null;
+	updateMutation.mutate(updateInput);
   };
 
   if (loading) {
@@ -294,13 +307,12 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+	                    accept="image/png,image/jpeg,image/webp"
                     onChange={handlePhotoUpload}
                     className="hidden"
                   />
 <p className="text-xs text-muted-foreground">
-                    Upload a profile photo (PNG, JPG) — stored securely in your
-                    profile.
+	                    Upload a profile photo (PNG, JPG, or WebP) — uploaded securely to your profile.
                   </p>
                   {photoError && (
                     <p className="text-xs text-destructive">{photoError}</p>
@@ -517,11 +529,15 @@ const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
                 <Button
                   type="submit"
-                  disabled={updateMutation.isPending}
+	                  disabled={updateMutation.isPending || photoUploadMutation.isPending || resumeUploadMutation.isPending}
                   className="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-3 rounded-lg hover:shadow-lg hover:shadow-primary/40 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {updateMutation.isPending ? "Saving…" : "Save Profile"}
+	                  {photoUploadMutation.isPending || resumeUploadMutation.isPending
+	                    ? "Uploading file…"
+	                    : updateMutation.isPending
+	                      ? "Saving…"
+	                      : "Save Profile"}
                 </Button>
               </form>
             </Card>
