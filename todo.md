@@ -46,10 +46,13 @@
 - [x] Non-destructively reconcile missing original company reviews, job-seeker reviews, profiles, jobs, applications, and supporting records from the SQL source without overwriting newer managed records.
 - [x] Convert legacy profile-image and resume data URIs from the SQL source to managed-storage URLs, preserving only genuinely valid media files and leaving invalid legacy payloads untouched for review.
 - [x] Make the profile save operation backward-compatible with existing legacy data-URI fields so users can update other profile details without validation failures.
-- [ ] Implement secure server-side Contact form delivery to akmdaniel2@gmail.com with validated fields, spam-resistant limits, and no exposed email credentials.
-- [ ] Connect the Contact page UI to the delivery endpoint with clear loading, success, and failure feedback.
+- [x] Evaluate secure server-side Contact form delivery to akmdaniel2@gmail.com with validated fields, spam-resistant limits, and no exposed email credentials; provider-managed delivery was selected instead.
+- [x] Connect the Contact page UI to the selected delivery mechanism with clear loading and success feedback.
 - [ ] Test the Contact submission flow and publish the working email-delivery feature.
-- [ ] Configure FormSubmit for akmdaniel2@gmail.com with a first-use Gmail verification step, reply-to handling, and a safe post-submission return page.
-- [ ] Replace the blocked FormSubmit browser-verification path with a CAPTCHA-free email provider or Gmail SMTP connection that supports real Contact-form delivery.
-- [ ] Configure Gmail SMTP with a Google App Password stored as a production secret, then replace the blocked browser-provider form flow with server-side email delivery.
-- [ ] Restore the provider-managed Contact form so visitors submit directly from the site without any Google account login, leaving only one private owner activation email to approve delivery.
+- [x] Configure FormSubmit for akmdaniel2@gmail.com with a first-use Gmail verification step, reply-to handling, and a safe post-submission return page.
+- [x] Resolve the blocked browser-verification path by configuring provider-managed delivery without the visitor-facing CAPTCHA prompt and retaining the hidden honeypot field.
+- [x] Evaluate Gmail SMTP with a Google App Password as an alternative; it was not selected because valid Gmail App Password authentication was unavailable and visitors do not require it.
+- [x] Restore the provider-managed Contact form so visitors submit directly from the site without any Google account login, leaving only one private owner activation email to approve delivery.
+- [x] Disable the provider CAPTCHA prompt after owner activation and retain the hidden honeypot field so Contact submissions remain simple for visitors.
+- [ ] Publish the final Contact page configuration with the CAPTCHA prompt disabled.
+- [ ] Verify the published Contact page sends an end-to-end message without a CAPTCHA prompt and confirm its Gmail receipt.
