@@ -1,13 +1,30 @@
-import { describe, expect, it } from "vitest";
-import { CONTACT_FORMSUBMIT_ENDPOINT, getContactSuccessUrl, isContactSubmissionSuccess } from "../client/src/lib/contactForm";
+import { describe, expect, it, vi } from "vitest";
+import { CONTACT_FORMSUBMIT_AJAX_ENDPOINT, submitContactMessage } from "../client/src/lib/contactForm";
 
-describe("Contact form provider configuration", () => {
-  it("uses the configured Gmail destination without requiring visitors to authenticate", () => {
-    expect(CONTACT_FORMSUBMIT_ENDPOINT).toBe("https://formsubmit.co/akmdaniel2@gmail.com");
+const message = {
+  name: "Contact Test",
+  email: "contact@example.com",
+  subject: "Contact delivery test",
+  message: "This is a valid contact form message.",
+};
+
+describe("Contact form AJAX delivery", () => {
+  it("posts a JSON message to the configured provider endpoint without navigation", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ success: "true" }) });
+
+    await submitContactMessage(message, fetchMock as unknown as typeof fetch);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      CONTACT_FORMSUBMIT_AJAX_ENDPOINT,
+      expect.objectContaining({ method: "POST", headers: expect.objectContaining({ Accept: "application/json" }) }),
+    );
+    expect(fetchMock.mock.calls[0][1].body).toContain('"_captcha":"false"');
+    expect(fetchMock.mock.calls[0][1].body).toContain('"_honey":""');
   });
 
-  it("returns users to a visible Contact-page success state", () => {
-    expect(getContactSuccessUrl("https://talenthub-gkbobftg.manus.space")).toBe("https://talenthub-gkbobftg.manus.space/contact?sent=1");
-    expect(isContactSubmissionSuccess("?sent=1")).toBe(true);
+  it("surfaces provider errors to the Contact page", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ message: "Delivery unavailable" }) });
+
+    await expect(submitContactMessage(message, fetchMock as unknown as typeof fetch)).rejects.toThrow("Delivery unavailable");
   });
 });

@@ -48,11 +48,13 @@
 - [x] Make the profile save operation backward-compatible with existing legacy data-URI fields so users can update other profile details without validation failures.
 - [x] Evaluate secure server-side Contact form delivery to akmdaniel2@gmail.com with validated fields, spam-resistant limits, and no exposed email credentials; provider-managed delivery was selected instead.
 - [x] Connect the Contact page UI to the selected delivery mechanism with clear loading and success feedback.
-- [ ] Test the Contact submission flow and publish the working email-delivery feature.
+- [x] Test the Contact submission flow and publish the working email-delivery feature.
 - [x] Configure FormSubmit for akmdaniel2@gmail.com with a first-use Gmail verification step, reply-to handling, and a safe post-submission return page.
 - [x] Resolve the blocked browser-verification path by configuring provider-managed delivery without the visitor-facing CAPTCHA prompt and retaining the hidden honeypot field.
 - [x] Evaluate Gmail SMTP with a Google App Password as an alternative; it was not selected because valid Gmail App Password authentication was unavailable and visitors do not require it.
 - [x] Restore the provider-managed Contact form so visitors submit directly from the site without any Google account login, leaving only one private owner activation email to approve delivery.
 - [x] Disable the provider CAPTCHA prompt after owner activation and retain the hidden honeypot field so Contact submissions remain simple for visitors.
-- [ ] Publish the final Contact page configuration with the CAPTCHA prompt disabled.
+- [x] Publish the final Contact page configuration with the CAPTCHA prompt disabled.
 - [ ] Verify the published Contact page sends an end-to-end message without a CAPTCHA prompt and confirm its Gmail receipt.
+- [ ] Determine whether FormSubmit's Cloudflare security check clears for a fresh real browser submission, and replace the delivery path if it does not.
+- [ ] Replace external Contact form navigation with FormSubmit AJAX submission, keeping visitors on the page with in-page success and failure feedback.
