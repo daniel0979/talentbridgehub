@@ -7,7 +7,9 @@
 - [x] Resolve the pnpm patched-dependency and frozen-lockfile mismatch so production builds can install dependencies reproducibly.
 - [x] Audit the migrated runtime, database, OAuth, and storage modules against the managed project infrastructure, retaining only compatible integration code.
 - [x] Run a managed-project smoke test for server startup, database connectivity, OAuth routing, and the uploaded static asset before release.
-- [ ] Diagnose and repair public job, company, and career-tip queries so restored database records render in their associated routes; the imported tip remains unpublished and therefore is not displayed publicly.
+- [x] Diagnose and repair public job, company, and career-tip queries so restored database records render in their associated routes; the preserved career tip is now published and visible.
+- [x] Verify the public careerTips.list endpoint returns the published imported tip.
+- [x] Verify the public Career Tips page renders the returned published tip in the UI.
 - [x] Allow unauthenticated portal-session lookups to resolve as null instead of redirecting or blocking public TalentBridgeHub routes.
 - [x] Restrict the public company-directory query to non-sensitive profile fields so credentials and private account contact fields are never exposed in unauthenticated responses.
 - [x] Apply the TalentBridgeHub relational schema to the managed MySQL database without deleting existing hosted records.
@@ -17,7 +19,11 @@
 - [x] Run the idempotent seed process for the super-admin and default categories, locations, and settings without overwriting imported data.
 - [x] Configure production-only secrets for role-specific JWT sessions and a non-default super-admin credential.
 - [x] Replace the inherited default super-admin password through the protected seed process after production secrets are supplied.
-- [ ] Verify public vacancy search, job-seeker registration and applications, company approval and job management, and administrator moderation workflows.
+- [x] Verify public vacancy search, job-seeker registration and applications, company approval and job management, and administrator moderation workflows.
+- [x] Verify successful job-seeker registration and login through an isolated test account without altering imported records.
+- [x] Verify job-seeker application submission and withdrawal through isolated workflow data with cleanup.
+- [x] Verify an actual pending-to-approved company transition and the company job create, edit, and delete workflow using isolated data with cleanup.
+- [x] Verify public vacancy search against imported data through both the API and the rendered public page.
 - [x] Align the migrated public branding, document title, and navigation labels with the TalentBridgeHub platform identity.
 - [x] Replace remaining legacy brand references and unsupported public-facing metrics with accurate TalentBridgeHub content.
 - [x] Replace unsupported vacancy-volume copy and align public salary filtering with the imported Myanmar salary-band values.
@@ -28,4 +34,4 @@
 - [x] Perform a documented smoke test of database reads and writes, OAuth callback routing, and the managed static asset URL.
 - [x] Run and record a non-destructive database-write smoke test against the managed database before release.
 - [x] Verify the seeded super-admin password rotation with a safe authentication or password-hash check.
-- [ ] Save a release checkpoint and provide the user with the managed hosting publication steps and final URL.
+- [x] Save a release checkpoint and provide the user with the managed hosting publication steps and final URL.
