@@ -61,7 +61,7 @@
 - [x] Add an accessible square profile-photo crop dialog with zoom and reposition controls before job-seeker image upload.
 - [x] Upload only the confirmed cropped profile image through the existing managed-storage flow and preserve cancel/retry behavior.
 - [x] Test the crop output and profile update flow.
-- [ ] Publish the improved job-seeker profile crop experience.
-- [ ] Verify the published job-seeker crop component and managed-upload integration in an authenticated profile session.
+- [x] Publish the improved job-seeker profile crop experience.
+- [x] Verify the published job-seeker crop component and managed-upload integration in an authenticated profile session.
 - [x] Change the crop overlay from a circular mask to an explicit square frame and verify its dialog instructions match the saved output.
 - [x] Add authenticated integration coverage for a cropped photo upload and profile save, then verify cancel and retry behavior in the browser.
