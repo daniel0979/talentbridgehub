@@ -1,0 +1,2 @@
+INSERT INTO `applications` (`id`, `job_seeker_id`, `job_id`, `company_id`, `resume_url`, `cover_letter`, `status`, `createdAt`, `updatedAt`) VALUES
+(1, 2, 13, 7, NULL, 'I need a job for this', 'reviewed', '2026-08-07 03:41:22', '2026-08-07 03:42:51');

@@ -1,0 +1,1 @@
+ALTER TABLE `job_seekers` MODIFY COLUMN `photo_url` longtext;

@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1783927433829,
+      "tag": "0000_unknown_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1783927641736,
+      "tag": "0001_chunky_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785826273303,
+      "tag": "0002_nostalgic_the_renegades",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1785838569552,
+      "tag": "0003_useful_santa_claus",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1785903879221,
+      "tag": "0004_curved_black_panther",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1786760416123,
+      "tag": "0005_yellow_cerise",
+      "breakpoints": true
+    }
+  ]
+}

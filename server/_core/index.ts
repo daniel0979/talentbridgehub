@@ -7,6 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+import { ensureSchema } from "./ensureSchema";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -29,6 +30,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Reconcile the live schema (add missing columns/tables) before serving.
+  await ensureSchema();
+
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads

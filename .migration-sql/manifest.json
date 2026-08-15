@@ -1,0 +1,12 @@
+{
+  "sourceFile": "/home/ubuntu/talentbridgehub/database/job_seeker_platform.sql",
+  "statements": 67,
+  "deferredEmbeddedAssets": 10,
+  "skippedReviewDataStatements": 2,
+  "chunks": [
+    {
+      "fileName": "001.sql",
+      "bytes": 29632
+    }
+  ]
+}

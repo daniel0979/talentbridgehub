@@ -46,3 +46,52 @@ export function getSessionCookieOptions(
     secure: isSecureRequest(req),
   };
 }
+
+/**
+ * Cookie options for the Admin portal session. Unlike the public OAuth cookie
+ * (which uses SameSite=None + Secure for cross-site Manus preview iframes),
+ * the admin cookie uses SameSite=Lax so it is accepted on plain HTTP localhost
+ * too. Browsers reject SameSite=None cookies that are not marked Secure, which
+ * would silently drop the admin session cookie on http://localhost.
+ */
+export function getAdminCookieOptions(
+  req: Request
+): Pick<CookieOptions, "httpOnly" | "path" | "sameSite" | "secure"> {
+  return {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: isSecureRequest(req),
+  };
+}
+
+/**
+ * Cookie options for the Job Seeker session (email/password auth). Uses the
+ * same SameSite=Lax approach as the admin cookie so it works on plain HTTP
+ * localhost.
+ */
+export function getJobSeekerCookieOptions(
+  req: Request
+): Pick<CookieOptions, "httpOnly" | "path" | "sameSite" | "secure"> {
+  return {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: isSecureRequest(req),
+  };
+}
+
+/**
+ * Cookie options for the Company session (email/password auth). Uses the
+ * same SameSite=Lax approach so it works on plain HTTP localhost.
+ */
+export function getCompanyCookieOptions(
+  req: Request
+): Pick<CookieOptions, "httpOnly" | "path" | "sameSite" | "secure"> {
+  return {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: isSecureRequest(req),
+  };
+}

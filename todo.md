@@ -1,0 +1,31 @@
+# Project TODO
+
+- [x] Inventory the cloned TalentBridgeHub repository and distinguish application source from hosting-specific or secret configuration.
+- [x] Migrate the React client, page routes, reusable components, styling, shared types, backend routers, database access layer, and role-specific authentication modules.
+- [x] Migrate the Drizzle schema and compatible SQL migrations for users, administrators, job seekers, companies, jobs, applications, categories, locations, salary bands, career tips, conversations, messages, notifications, activity logs, settings, and review tables.
+- [x] Replace incompatible local deployment configuration while preserving the managed project’s runtime, database, OAuth, and storage infrastructure.
+- [x] Resolve the pnpm patched-dependency and frozen-lockfile mismatch so production builds can install dependencies reproducibly.
+- [x] Audit the migrated runtime, database, OAuth, and storage modules against the managed project infrastructure, retaining only compatible integration code.
+- [x] Run a managed-project smoke test for server startup, database connectivity, OAuth routing, and the uploaded static asset before release.
+- [ ] Diagnose and repair public job, company, and career-tip queries so restored database records render in their associated routes; the imported tip remains unpublished and therefore is not displayed publicly.
+- [x] Allow unauthenticated portal-session lookups to resolve as null instead of redirecting or blocking public TalentBridgeHub routes.
+- [x] Restrict the public company-directory query to non-sensitive profile fields so credentials and private account contact fields are never exposed in unauthenticated responses.
+- [x] Apply the TalentBridgeHub relational schema to the managed MySQL database without deleting existing hosted records.
+- [x] Repair the imported MariaDB table definitions for managed TiDB compatibility by preserving the imported rows in non-destructive backup tables and recreating runtime tables with native auto-generated identifiers.
+- [x] Replace the current managed primary-key strategy so Drizzle inserts using SQL DEFAULT receive database-generated identifiers in every writable platform table.
+- [x] Import the repository SQL dump into the new managed database exactly once, with pre-import checks to prevent accidental re-import or data loss.
+- [x] Run the idempotent seed process for the super-admin and default categories, locations, and settings without overwriting imported data.
+- [x] Configure production-only secrets for role-specific JWT sessions and a non-default super-admin credential.
+- [x] Replace the inherited default super-admin password through the protected seed process after production secrets are supplied.
+- [ ] Verify public vacancy search, job-seeker registration and applications, company approval and job management, and administrator moderation workflows.
+- [x] Align the migrated public branding, document title, and navigation labels with the TalentBridgeHub platform identity.
+- [x] Replace remaining legacy brand references and unsupported public-facing metrics with accurate TalentBridgeHub content.
+- [x] Replace unsupported vacancy-volume copy and align public salary filtering with the imported Myanmar salary-band values.
+- [x] Remove inherited hardcoded testimonial records so public reviews are shown only when supplied by genuine users through the platform.
+- [x] Run TypeScript checks and Vitest tests, then add or update migration-relevant coverage where required.
+- [x] Fix the missing bcryptjs runtime dependency and confirm the managed server starts without module-resolution errors.
+- [x] Record the final managed database schema in a compatible Drizzle migration so the source-controlled migration history matches the deployed tables.
+- [x] Perform a documented smoke test of database reads and writes, OAuth callback routing, and the managed static asset URL.
+- [x] Run and record a non-destructive database-write smoke test against the managed database before release.
+- [x] Verify the seeded super-admin password rotation with a safe authentication or password-hash check.
+- [ ] Save a release checkpoint and provide the user with the managed hosting publication steps and final URL.
