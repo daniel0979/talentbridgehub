@@ -46,3 +46,10 @@
 - [x] Non-destructively reconcile missing original company reviews, job-seeker reviews, profiles, jobs, applications, and supporting records from the SQL source without overwriting newer managed records.
 - [x] Convert legacy profile-image and resume data URIs from the SQL source to managed-storage URLs, preserving only genuinely valid media files and leaving invalid legacy payloads untouched for review.
 - [x] Make the profile save operation backward-compatible with existing legacy data-URI fields so users can update other profile details without validation failures.
+- [ ] Implement secure server-side Contact form delivery to akmdaniel2@gmail.com with validated fields, spam-resistant limits, and no exposed email credentials.
+- [ ] Connect the Contact page UI to the delivery endpoint with clear loading, success, and failure feedback.
+- [ ] Test the Contact submission flow and publish the working email-delivery feature.
+- [ ] Configure FormSubmit for akmdaniel2@gmail.com with a first-use Gmail verification step, reply-to handling, and a safe post-submission return page.
+- [ ] Replace the blocked FormSubmit browser-verification path with a CAPTCHA-free email provider or Gmail SMTP connection that supports real Contact-form delivery.
+- [ ] Configure Gmail SMTP with a Google App Password stored as a production secret, then replace the blocked browser-provider form flow with server-side email delivery.
+- [ ] Restore the provider-managed Contact form so visitors submit directly from the site without any Google account login, leaving only one private owner activation email to approve delivery.
