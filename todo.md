@@ -55,6 +55,6 @@
 - [x] Restore the provider-managed Contact form so visitors submit directly from the site without any Google account login, leaving only one private owner activation email to approve delivery.
 - [x] Disable the provider CAPTCHA prompt after owner activation and retain the hidden honeypot field so Contact submissions remain simple for visitors.
 - [x] Publish the final Contact page configuration with the CAPTCHA prompt disabled.
-- [ ] Verify the published Contact page sends an end-to-end message without a CAPTCHA prompt and confirm its Gmail receipt.
-- [ ] Determine whether FormSubmit's Cloudflare security check clears for a fresh real browser submission, and replace the delivery path if it does not.
-- [ ] Replace external Contact form navigation with FormSubmit AJAX submission, keeping visitors on the page with in-page success and failure feedback.
+- [x] Verify the published Contact page sends an end-to-end message without a CAPTCHA prompt and confirm its Gmail receipt.
+- [x] Determine whether FormSubmit's Cloudflare security check clears for a fresh real browser submission, and replace the delivery path if it does not.
+- [x] Replace external Contact form navigation with FormSubmit AJAX submission, keeping visitors on the page with in-page success and failure feedback.

@@ -9,3 +9,6 @@
 - The stale browser instance was fully closed after the refreshed deployment; the next published-page check will use a fresh session.
 - A fresh browser session loaded the published Contact form with `_captcha=false`, `_honey`, the FormSubmit action, and the expected post-submission return URL. The current live form no longer exposes the provider CAPTCHA prompt.
 - A direct test from the live page navigated to FormSubmit and encountered Cloudflare's automated-browser security screen. This is distinct from the removed provider CAPTCHA: direct origin-backed tests reached Gmail successfully, while the sandbox browser is detected as automation by the provider's edge security layer.
+- After the AJAX checkpoint, a fresh published browser page still exposed an external FormSubmit form action instead of the new in-page AJAX handler. The public edge must be checked and refreshed before browser-to-Gmail AJAX verification can proceed.
+- After deployment propagation, the public Contact page renders the AJAX version: it states that no sign-in is required, has no form action or method, and no longer has a form pointing to the external provider.
+- A real browser submission of the propagated public AJAX form stayed on the TalentBridgeHub Contact page and displayed the in-page success state, without exposing the FormSubmit or Cloudflare verification page.
