@@ -41,6 +41,7 @@
 - [x] Move job-seeker resume uploads from base64 database values to managed file storage so valid PDF and DOCX documents remain usable within column limits.
 - [ ] Deploy the latest logo-recovery changes, then verify the published company directory loads without a server error and renders all five restored logos.
 - [ ] Investigate and resolve the live `/companies` server error if it persists after the updated release, then re-run the published-site smoke test.
+- [ ] Independently attempt managed hosting-service recovery through available project and deployment controls before requesting any user action.
 - [x] Inventory every table and record count in the user-provided SQL dump and compare it with the managed database before restoring data.
 - [x] Non-destructively reconcile missing original company reviews, job-seeker reviews, profiles, jobs, applications, and supporting records from the SQL source without overwriting newer managed records.
 - [x] Convert legacy profile-image and resume data URIs from the SQL source to managed-storage URLs, preserving only genuinely valid media files and leaving invalid legacy payloads untouched for review.
