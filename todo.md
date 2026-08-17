@@ -65,3 +65,4 @@
 - [x] Verify the published job-seeker crop component and managed-upload integration in an authenticated profile session.
 - [x] Change the crop overlay from a circular mask to an explicit square frame and verify its dialog instructions match the saved output.
 - [x] Add authenticated integration coverage for a cropped photo upload and profile save, then verify cancel and retry behavior in the browser.
+- [x] Diagnose and fix the Vite HMR WebSocket connection failure in the managed development preview.
