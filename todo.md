@@ -66,4 +66,4 @@
 - [x] Change the crop overlay from a circular mask to an explicit square frame and verify its dialog instructions match the saved output.
 - [x] Add authenticated integration coverage for a cropped photo upload and profile save, then verify cancel and retry behavior in the browser.
 - [x] Diagnose and fix the Vite HMR WebSocket connection failure in the managed development preview.
-- [ ] Push the current TalentBridgeHub project state to the selected GitHub repository and verify the remote branch.
+- [x] Push the current TalentBridgeHub project state to the selected GitHub repository and verify the remote branch.
