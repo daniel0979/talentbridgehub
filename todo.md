@@ -67,4 +67,4 @@
 - [x] Add authenticated integration coverage for a cropped photo upload and profile save, then verify cancel and retry behavior in the browser.
 - [x] Diagnose and fix the Vite HMR WebSocket connection failure in the managed development preview.
 - [x] Push the current TalentBridgeHub project state to the selected GitHub repository and verify the remote branch.
-- [ ] Push the verified TalentBridgeHub sync branch directly to GitHub main as authorized by the user and verify the resulting main commit.
+- [x] Push the verified TalentBridgeHub sync branch directly to GitHub main as authorized by the user and verify the resulting main commit.
