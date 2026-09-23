@@ -72,7 +72,7 @@ erDiagram
     }
     CONVERSATIONS {
         bigint id PK
-        bigint company_id FK UK
+        bigint company_id FK
     }
     MESSAGES {
         bigint id PK
