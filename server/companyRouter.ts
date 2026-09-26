@@ -26,6 +26,11 @@ getJobsByCompany,
   markConversationMessagesRead,
 getUnreadCount,
   getApplicationsByCompany,
+  getApplicationConversationByApplicationId,
+  getOrCreateApplicationConversation,
+  listApplicationChatMessages,
+  sendApplicationChatMessage,
+  markApplicationChatMessagesRead,
   updateApplicationStatus,
   createNotification,
   getNotificationsForRole,
@@ -415,6 +420,84 @@ create: companyProcedure
         }
         return updated;
       }),
+
+    chat: router({
+      /** Open a private conversation for an application owned by this company. */
+      open: companyProcedure
+        .input(z.object({ applicationId: z.number() }))
+        .mutation(async ({ ctx, input }) => {
+          const application = (await getApplicationsByCompany(ctx.company.id)).find(
+            (item) => item.id === input.applicationId
+          );
+          if (!application) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You can only message candidates who applied to your jobs.",
+            });
+          }
+          const conversation = await getOrCreateApplicationConversation(input.applicationId);
+          if (!conversation) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Application not found." });
+          }
+          return conversation;
+        }),
+
+      messages: companyProcedure
+        .input(z.object({ applicationId: z.number() }))
+        .query(async ({ ctx, input }) => {
+          const application = (await getApplicationsByCompany(ctx.company.id)).find(
+            (item) => item.id === input.applicationId
+          );
+          if (!application) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You cannot access this application chat." });
+          }
+          const conversation = await getApplicationConversationByApplicationId(input.applicationId);
+          if (!conversation || conversation.companyId !== ctx.company.id) return [];
+          return listApplicationChatMessages(conversation.id);
+        }),
+
+      send: companyProcedure
+        .input(z.object({ applicationId: z.number(), body: z.string().trim().min(1).max(5000) }))
+        .mutation(async ({ ctx, input }) => {
+          const application = (await getApplicationsByCompany(ctx.company.id)).find(
+            (item) => item.id === input.applicationId
+          );
+          if (!application) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You cannot message this applicant." });
+          }
+          const conversation = await getOrCreateApplicationConversation(input.applicationId);
+          if (!conversation || conversation.companyId !== ctx.company.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You cannot message this applicant." });
+          }
+          const message = await sendApplicationChatMessage({
+            conversationId: conversation.id,
+            senderRole: "company",
+            body: input.body,
+          });
+          await createNotification({
+            recipientRole: "job_seeker",
+            recipientId: conversation.jobSeekerId,
+            title: `New message from ${ctx.company.name}`,
+            content: `You received a message about your application for ${application.jobTitle}.`,
+            type: "application",
+          });
+          return message;
+        }),
+
+      markRead: companyProcedure
+        .input(z.object({ applicationId: z.number() }))
+        .mutation(async ({ ctx, input }) => {
+          const application = (await getApplicationsByCompany(ctx.company.id)).find(
+            (item) => item.id === input.applicationId
+          );
+          if (!application) throw new TRPCError({ code: "FORBIDDEN", message: "You cannot access this application chat." });
+          const conversation = await getApplicationConversationByApplicationId(input.applicationId);
+          if (conversation && conversation.companyId === ctx.company.id) {
+            await markApplicationChatMessagesRead(conversation.id, "job_seeker");
+          }
+          return { success: true } as const;
+        }),
+    }),
   }),
 
   messages: router({

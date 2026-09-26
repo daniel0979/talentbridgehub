@@ -22,11 +22,11 @@ The public area contains the home page, company directory, vacancy search, vacan
 
 ### Job-seeker portal
 
-Job seekers can register and sign in, edit a profile, add a headline, biography, location, skills and desired category, upload a profile photo, attach a résumé, browse vacancies, submit applications, withdraw applications where permitted, view application history, and read notifications. The profile-photo workflow includes a square crop frame, zoom, repositioning, cancellation, and upload of only the confirmed crop to managed storage.
+Job seekers can register and sign in, edit a profile, add a headline, biography, location, skills and desired category, upload a profile photo, attach a résumé, browse vacancies, submit applications, withdraw applications where permitted, view application history, reply to employer-initiated application conversations, and read notifications. The profile-photo workflow includes a square crop frame, zoom, repositioning, cancellation, and upload of only the confirmed crop to managed storage.
 
 ### Company portal
 
-Companies can register and enter a pending state until an administrator reviews the account. Approved companies can manage their public profile, create and update vacancies, review incoming applications, change application statuses, view company-related reviews, and communicate with the administrator. Vacancies also pass through an administrative approval process before they become public.
+Companies can register and enter a pending state until an administrator reviews the account. Approved companies can manage their public profile, create and update vacancies, review incoming applications, change application statuses, view company-related reviews, communicate with the administrator, and open a private chat with an applicant from that applicant's application record. Vacancies also pass through an administrative approval process before they become public.
 
 ### Administration portal
 
@@ -51,7 +51,7 @@ The implemented system includes:
 7. Job applications with a defined review lifecycle.
 8. Company and job-seeker reviews.
 9. Notifications for platform events.
-10. Private administrator–company conversations and messages.
+10. Private administrator–company conversations and application-specific employer–candidate messages.
 11. Career-tip content management.
 12. Reference-data management for categories, locations, and salary bands.
 13. Audit logging for administrator actions.
@@ -60,7 +60,7 @@ The implemented system includes:
 
 ### Outside the current scope
 
-The current release does not attempt to replace a full enterprise human-resources suite. It does not include payroll, employee onboarding, biometric verification, automated résumé scoring, video interviews, calendar integration, payments, native mobile applications, or a separate employer-to-candidate live chat system. Contact delivery is provider-managed rather than an internally hosted mail server. These boundaries keep the final-year project focused on the recruitment marketplace and its core workflows.
+The current release does not attempt to replace a full enterprise human-resources suite. It does not include payroll, employee onboarding, biometric verification, automated résumé scoring, video interviews, calendar integration, payments, native mobile applications, or a general-purpose social chat system. The included chat is deliberately limited to a private thread attached to a submitted application and is initiated by the company. Contact delivery is provider-managed rather than an internally hosted mail server. These boundaries keep the final-year project focused on the recruitment marketplace and its core workflows.
 
 ## 4. System architecture
 
@@ -257,6 +257,22 @@ erDiagram
         enum read
         timestamp createdAt
     }
+    APPLICATION_CONVERSATIONS {
+        bigint id PK
+        bigint application_id FK UK
+        bigint company_id FK
+        bigint job_seeker_id FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    APPLICATION_MESSAGES {
+        bigint id PK
+        bigint conversation_id FK
+        enum sender_role
+        text body
+        enum read
+        timestamp createdAt
+    }
     PARTNER_COMPANIES {
         bigint id PK
         varchar name
@@ -302,6 +318,10 @@ erDiagram
     COMPANIES ||--o{ APPLICATIONS : owns
     COMPANIES ||--o| CONVERSATIONS : has
     CONVERSATIONS ||--o{ MESSAGES : contains
+    APPLICATIONS ||--o| APPLICATION_CONVERSATIONS : opens
+    COMPANIES ||--o{ APPLICATION_CONVERSATIONS : owns
+    JOB_SEEKERS ||--o{ APPLICATION_CONVERSATIONS : joins
+    APPLICATION_CONVERSATIONS ||--o{ APPLICATION_MESSAGES : contains
     ADMINS ||--o{ ACTIVITY_LOGS : creates
 ```
 
@@ -313,7 +333,7 @@ A company can publish many jobs, while each job belongs to one company. A job ma
 
 Reviews are separated by subject. `company_reviews` links reviews to companies, while `job_seeker_reviews` links reviews to job seekers. This separation allows the public interface and future moderation rules to distinguish employer feedback from candidate feedback.
 
-A company can have at most one administrator conversation because `conversations.company_id` is unique. Each conversation can contain many messages. Messages record whether the sender is the administrator or company and whether the message has been read.
+A company can have at most one administrator conversation because `conversations.company_id` is unique. Each conversation can contain many messages. Messages record whether the sender is the administrator or company and whether the message has been read. Separately, each submitted application can have at most one private employer–candidate conversation because `application_conversations.application_id` is unique. This separate pair of tables keeps recruitment communication distinct from administrator support messages and allows each role to be authorised against the application participants.
 
 `activity_logs` records administrator actions. It contains a foreign key to the administrator who performed the action and a flexible target type and target identifier for the affected record. `notifications` uses `recipientRole` and `recipientId` because a notification can target an administrator, job seeker, or company. These polymorphic fields are application-level references rather than direct database foreign keys.
 

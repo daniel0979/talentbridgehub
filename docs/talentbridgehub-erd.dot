@@ -1,0 +1,240 @@
+digraph TalentBridgeHubERD {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    bgcolor="white",
+    pad="0.25",
+    nodesep="0.45",
+    ranksep="1.0",
+    fontname="Arial",
+    labelloc="t",
+    label="TalentBridgeHub Database ERD",
+    fontsize="22",
+    fontcolor="black"
+  ];
+
+  node [shape=plain, fontname="Arial", fontcolor="black"];
+  edge [color="black", penwidth="1.2", arrowsize="0.7", fontname="Arial", fontcolor="black"];
+
+  users [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>users</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK int</TD></TR>
+      <TR><TD ALIGN="LEFT">openId</TD><TD ALIGN="LEFT">UK varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">text</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">role</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  admins [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>admins</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD><TD ALIGN="LEFT">UK varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">password</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">role</TD><TD ALIGN="LEFT">enum</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  job_seekers [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>job_seekers</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD><TD ALIGN="LEFT">UK varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">photo_url</TD><TD ALIGN="LEFT">longtext</TD></TR>
+      <TR><TD ALIGN="LEFT">resume_url</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  companies [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>companies</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">owner_email</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">logo_url</TD><TD ALIGN="LEFT">longtext</TD></TR>
+      <TR><TD ALIGN="LEFT">password</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  jobs [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>jobs</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">company_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">category_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">salary_band_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">title</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  applications [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>applications</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">job_seeker_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">job_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">company_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">resume_url</TD><TD ALIGN="LEFT">longtext</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  job_categories [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>job_categories</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">icon</TD><TD ALIGN="LEFT">varchar</TD></TR>
+    </TABLE>
+  >];
+
+  locations [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>locations</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">sort_order</TD><TD ALIGN="LEFT">int</TD></TR>
+    </TABLE>
+  >];
+
+  salary_bands [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>salary_bands</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">label</TD><TD ALIGN="LEFT">UK varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">sort_order</TD><TD ALIGN="LEFT">int</TD></TR>
+    </TABLE>
+  >];
+
+  company_reviews [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>company_reviews</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">company_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">rating</TD><TD ALIGN="LEFT">int</TD></TR>
+      <TR><TD ALIGN="LEFT">content</TD><TD ALIGN="LEFT">text</TD></TR>
+    </TABLE>
+  >];
+
+  job_seeker_reviews [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>job_seeker_reviews</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">job_seeker_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">rating</TD><TD ALIGN="LEFT">int</TD></TR>
+      <TR><TD ALIGN="LEFT">content</TD><TD ALIGN="LEFT">text</TD></TR>
+    </TABLE>
+  >];
+
+  conversations [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>conversations</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">company_id</TD><TD ALIGN="LEFT">FK + UK bigint</TD></TR>
+    </TABLE>
+  >];
+
+  messages [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>messages</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">conversation_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">sender</TD><TD ALIGN="LEFT">enum</TD></TR>
+      <TR><TD ALIGN="LEFT">body</TD><TD ALIGN="LEFT">text</TD></TR>
+    </TABLE>
+  >];
+
+  application_conversations [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>application_conversations</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">application_id</TD><TD ALIGN="LEFT">FK + UK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">company_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">job_seeker_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+    </TABLE>
+  >];
+
+  application_messages [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>application_messages</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">conversation_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">sender_role</TD><TD ALIGN="LEFT">enum</TD></TR>
+      <TR><TD ALIGN="LEFT">body</TD><TD ALIGN="LEFT">text</TD></TR>
+      <TR><TD ALIGN="LEFT">read</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  career_tips [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>career_tips</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">title</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">body</TD><TD ALIGN="LEFT">text</TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  partner_companies [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>partner_companies</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">logo</TD><TD ALIGN="LEFT">varchar</TD></TR>
+    </TABLE>
+  >];
+
+  activity_logs [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>activity_logs</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">admin_id</TD><TD ALIGN="LEFT">FK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">target_type</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">target_id</TD><TD ALIGN="LEFT">bigint</TD></TR>
+    </TABLE>
+  >];
+
+  notifications [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>notifications</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">recipientRole</TD><TD ALIGN="LEFT">enum</TD></TR>
+      <TR><TD ALIGN="LEFT">recipient_id</TD><TD ALIGN="LEFT">bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">title</TD><TD ALIGN="LEFT">varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">is_read</TD><TD ALIGN="LEFT">enum</TD></TR>
+    </TABLE>
+  >];
+
+  settings [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="black" BGCOLOR="white">
+      <TR><TD COLSPAN="2"><B>settings</B></TD></TR>
+      <TR><TD ALIGN="LEFT">id</TD><TD ALIGN="LEFT">PK bigint</TD></TR>
+      <TR><TD ALIGN="LEFT">key</TD><TD ALIGN="LEFT">UK varchar</TD></TR>
+      <TR><TD ALIGN="LEFT">value</TD><TD ALIGN="LEFT">text</TD></TR>
+    </TABLE>
+  >];
+
+  companies -> jobs [xlabel="1 : 0..*"];
+  job_categories -> jobs [xlabel="0..1 : 0..*"];
+  salary_bands -> jobs [xlabel="0..1 : 0..*"];
+  job_seekers -> applications [xlabel="1 : 0..*"];
+  jobs -> applications [xlabel="1 : 0..*"];
+  companies -> applications [xlabel="1 : 0..*"];
+  companies -> company_reviews [xlabel="1 : 0..*"];
+  job_seekers -> job_seeker_reviews [xlabel="1 : 0..*"];
+  companies -> conversations [xlabel="1 : 0..1"];
+  conversations -> messages [xlabel="1 : 0..*"];
+  applications -> application_conversations [xlabel="1 : 0..1"];
+  companies -> application_conversations [xlabel="1 : 0..*"];
+  job_seekers -> application_conversations [xlabel="1 : 0..*"];
+  application_conversations -> application_messages [xlabel="1 : 0..*"];
+  admins -> activity_logs [xlabel="1 : 0..*"];
+}

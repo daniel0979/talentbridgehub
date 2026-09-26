@@ -14,6 +14,11 @@ import {
   createJobSeekerReview,
   getApplicationByJobSeekerAndJob,
   getApplicationsByJobSeeker,
+  getApplicationConversationByApplicationId,
+  getApplicationChatSummariesForJobSeeker,
+  listApplicationChatMessages,
+  sendApplicationChatMessage,
+  markApplicationChatMessagesRead,
   getJobById,
   getJobSeekerByEmail,
   getJobSeekerReviewsBySeeker,
@@ -415,6 +420,55 @@ submit: jobSeekerProcedure
         await updateApplicationStatus(input.id, "rejected");
         return { success: true } as const;
       }),
+
+    chat: router({
+      /** Only company-initiated application conversations are listed here. */
+      list: jobSeekerProcedure.query(async ({ ctx }) => {
+        return getApplicationChatSummariesForJobSeeker(ctx.jobSeeker.id);
+      }),
+
+      messages: jobSeekerProcedure
+        .input(z.object({ applicationId: z.number() }))
+        .query(async ({ ctx, input }) => {
+          const conversation = await getApplicationConversationByApplicationId(input.applicationId);
+          if (!conversation || conversation.jobSeekerId !== ctx.jobSeeker.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You cannot access this application chat." });
+          }
+          return listApplicationChatMessages(conversation.id);
+        }),
+
+      send: jobSeekerProcedure
+        .input(z.object({ applicationId: z.number(), body: z.string().trim().min(1).max(5000) }))
+        .mutation(async ({ ctx, input }) => {
+          const conversation = await getApplicationConversationByApplicationId(input.applicationId);
+          if (!conversation || conversation.jobSeekerId !== ctx.jobSeeker.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You cannot message this company." });
+          }
+          const message = await sendApplicationChatMessage({
+            conversationId: conversation.id,
+            senderRole: "job_seeker",
+            body: input.body,
+          });
+          await createNotification({
+            recipientRole: "company",
+            recipientId: conversation.companyId,
+            title: `New message from ${ctx.jobSeeker.name}`,
+            content: "A job seeker replied to an application conversation.",
+            type: "application",
+          });
+          return message;
+        }),
+
+      markRead: jobSeekerProcedure
+        .input(z.object({ applicationId: z.number() }))
+        .mutation(async ({ ctx, input }) => {
+          const conversation = await getApplicationConversationByApplicationId(input.applicationId);
+          if (conversation && conversation.jobSeekerId === ctx.jobSeeker.id) {
+            await markApplicationChatMessagesRead(conversation.id, "company");
+          }
+          return { success: true } as const;
+        }),
+    }),
   }),
 });
 

@@ -312,6 +312,45 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
 
 /**
+ * Private chat opened by a company for one submitted job application. This is
+ * separate from the existing company-admin conversation so candidate chats
+ * cannot be mixed with support messages.
+ */
+export const applicationConversations = mysqlTable("application_conversations", {
+  id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+  applicationId: bigint("application_id", { mode: "number" })
+    .references(() => applications.id)
+    .notNull()
+    .unique(),
+  companyId: bigint("company_id", { mode: "number" })
+    .references(() => companies.id)
+    .notNull(),
+  jobSeekerId: bigint("job_seeker_id", { mode: "number" })
+    .references(() => jobSeekers.id)
+    .notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ApplicationConversation = typeof applicationConversations.$inferSelect;
+export type InsertApplicationConversation = typeof applicationConversations.$inferInsert;
+
+/** Messages exchanged between an employer and a job seeker for one application. */
+export const applicationMessages = mysqlTable("application_messages", {
+  id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+  conversationId: bigint("conversation_id", { mode: "number" })
+    .references(() => applicationConversations.id)
+    .notNull(),
+  senderRole: mysqlEnum("sender_role", ["company", "job_seeker"]).notNull(),
+  body: text("body").notNull(),
+  read: mysqlEnum("read", ["unread", "read"]).default("unread").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ApplicationMessage = typeof applicationMessages.$inferSelect;
+export type InsertApplicationMessage = typeof applicationMessages.$inferInsert;
+
+/**
  * Partner companies showcased on the public Companies page (logos +
  * testimonials). Separate from the `companies` table — not every registered
  * company is a showcased partner.

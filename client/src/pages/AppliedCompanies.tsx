@@ -19,6 +19,7 @@ import {
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { JobSeekerApplicationChat } from "@/components/ApplicationChatDialog";
 
 const statusStyles: Record<string, string> = {
   submitted: "bg-amber-100 text-amber-700 border-amber-200",
@@ -55,7 +56,13 @@ export default function AppliedCompanies() {
   const applicationsQuery = trpc.jobSeeker.applications.mine.useQuery(undefined, {
     enabled: Boolean(jobSeeker),
   });
+  const chatsQuery = trpc.jobSeeker.applications.chat.list.useQuery(undefined, {
+    enabled: Boolean(jobSeeker),
+  });
   const applications = applicationsQuery.data ?? [];
+  const chatsByApplication = new Map(
+    (chatsQuery.data ?? []).map((chat) => [chat.applicationId, chat])
+  );
 
   const withdrawMutation = trpc.jobSeeker.applications.withdraw.useMutation({
     onSuccess: async () => {
@@ -199,6 +206,13 @@ export default function AppliedCompanies() {
                               <FileText className="w-4 h-4" />
                               Cover letter attached
                             </span>
+                          )}
+                          {chatsByApplication.has(app.id) && (
+                            <JobSeekerApplicationChat
+                              applicationId={app.id}
+                              companyName={app.companyName}
+                              jobTitle={app.jobTitle}
+                            />
                           )}
                           <Button
                             variant="outline"

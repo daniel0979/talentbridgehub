@@ -16,6 +16,8 @@ activityLogs,
   careerTips,
   conversations,
   messages,
+  applicationConversations,
+  applicationMessages,
   applications,
   notifications,
 type Admin,
@@ -2353,6 +2355,157 @@ export async function markConversationMessagesRead(
         eq(messages.conversationId, conversationId),
         eq(messages.sender, sender),
         eq(messages.read, "unread")
+      )
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Company ↔ Job seeker application messaging
+// ---------------------------------------------------------------------------
+export async function getApplicationConversationByApplicationId(applicationId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [row] = await db
+    .select()
+    .from(applicationConversations)
+    .where(eq(applicationConversations.applicationId, applicationId))
+    .limit(1);
+  return row;
+}
+
+export async function getOrCreateApplicationConversation(applicationId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await getApplicationConversationByApplicationId(applicationId);
+  if (existing) return existing;
+
+  const [application] = await db
+    .select({ companyId: applications.companyId, jobSeekerId: applications.jobSeekerId })
+    .from(applications)
+    .where(eq(applications.id, applicationId))
+    .limit(1);
+  if (!application) return undefined;
+
+  const [result] = await db.insert(applicationConversations).values({
+    applicationId,
+    companyId: application.companyId,
+    jobSeekerId: application.jobSeekerId,
+  });
+  const [created] = await db
+    .select()
+    .from(applicationConversations)
+    .where(eq(applicationConversations.id, result.insertId))
+    .limit(1);
+  return created;
+}
+
+export async function listApplicationChatMessages(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(applicationMessages)
+    .where(eq(applicationMessages.conversationId, conversationId))
+    .orderBy(applicationMessages.createdAt);
+}
+
+export async function getApplicationChatSummariesForJobSeeker(jobSeekerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({
+      applicationId: applicationConversations.applicationId,
+      conversationId: applicationConversations.id,
+      companyId: applicationConversations.companyId,
+      companyName: companies.name,
+      jobTitle: jobs.title,
+      applicationStatus: applications.status,
+      updatedAt: applicationConversations.updatedAt,
+    })
+    .from(applicationConversations)
+    .innerJoin(applications, eq(applicationConversations.applicationId, applications.id))
+    .innerJoin(jobs, eq(applications.jobId, jobs.id))
+    .innerJoin(companies, eq(applicationConversations.companyId, companies.id))
+    .where(eq(applicationConversations.jobSeekerId, jobSeekerId))
+    .orderBy(desc(applicationConversations.updatedAt));
+
+  const result = [];
+  for (const row of rows) {
+    const [unreadRow] = await db
+      .select({ value: count() })
+      .from(applicationMessages)
+      .where(
+        and(
+          eq(applicationMessages.conversationId, row.conversationId),
+          eq(applicationMessages.senderRole, "company"),
+          eq(applicationMessages.read, "unread")
+        )
+      );
+    result.push({ ...row, unread: unreadRow?.value ?? 0 });
+  }
+  return result;
+}
+
+export async function getApplicationChatUnreadCount(
+  conversationId: number,
+  senderRole: "company" | "job_seeker"
+) {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ value: count() })
+    .from(applicationMessages)
+    .where(
+      and(
+        eq(applicationMessages.conversationId, conversationId),
+        eq(applicationMessages.senderRole, senderRole),
+        eq(applicationMessages.read, "unread")
+      )
+    );
+  return row?.value ?? 0;
+}
+
+export async function sendApplicationChatMessage(input: {
+  conversationId: number;
+  senderRole: "company" | "job_seeker";
+  body: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [result] = await db.insert(applicationMessages).values({
+    conversationId: input.conversationId,
+    senderRole: input.senderRole,
+    body: input.body,
+    read: "unread",
+  });
+  const [row] = await db
+    .select()
+    .from(applicationMessages)
+    .where(eq(applicationMessages.id, result.insertId))
+    .limit(1);
+  if (!row) throw new Error("Failed to send application message");
+  await db
+    .update(applicationConversations)
+    .set({ updatedAt: new Date() })
+    .where(eq(applicationConversations.id, input.conversationId));
+  return row;
+}
+
+export async function markApplicationChatMessagesRead(
+  conversationId: number,
+  senderRole: "company" | "job_seeker"
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(applicationMessages)
+    .set({ read: "read" })
+    .where(
+      and(
+        eq(applicationMessages.conversationId, conversationId),
+        eq(applicationMessages.senderRole, senderRole),
+        eq(applicationMessages.read, "unread")
       )
     );
 }

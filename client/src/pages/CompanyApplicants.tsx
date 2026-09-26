@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { CompanyApplicationChat } from "@/components/ApplicationChatDialog";
 
 const STATUS_OPTIONS = [
   "submitted",
@@ -417,6 +418,13 @@ onValueChange={(v) =>
                             </p>
                           </div>
                         )}
+                        <div className="mt-4 flex justify-end">
+                          <CompanyApplicationChat
+                            applicationId={app.id}
+                            seekerName={app.seekerName}
+                            jobTitle={app.jobTitle}
+                          />
+                        </div>
                       </div>
                     </div>
                   </Card>
